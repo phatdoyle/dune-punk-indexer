@@ -31,7 +31,7 @@ CryptoPunks$OnAssignEvent
     address constant CRYPTOPUNKS = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
     address constant PUNKS_IMAGES_ONCHAIN = 0x16F5A35647D6F03D5D3da7b35409D65ba03aF3B2;
 
-    uint16 public metadataCounter = 0;
+    mapping(uint16 => bool) public processedPunks;
     ///Get All Offers
     event PunkOffered(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, uint256 minValue, address toAddress);
 
@@ -57,12 +57,16 @@ CryptoPunks$OnAssignEvent
         emit PunkTransfer(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.from, inputs.to);
 
         if (block.number > 13047090) {
-            if(metadataCounter < 10000) {
-                IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
-                string memory svg = punkData.punkImageSvg(metadataCounter);
-                string memory attributes = punkData.punkAttributes(metadataCounter);
-                emit punkSvgAndAttributes(metadataCounter, svg, attributes);
-                metadataCounter++;
+            // Process one punk per transfer to avoid gas issues
+            for (uint16 i = 0; i < 10000; i++) {
+                if (!processedPunks[i]) {
+                    IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
+                    string memory svg = punkData.punkImageSvg(i);
+                    string memory attributes = punkData.punkAttributes(i);
+                    emit punkSvgAndAttributes(i, svg, attributes);
+                    processedPunks[i] = true;
+                    break; // Only process one punk per transfer
+                }
             }
         }
     }
