@@ -3,11 +3,52 @@ import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import { db, types } from "@duneanalytics/sim-idx";
 
-export const poolCreated = table("pool_created", {
-  chainId: db.uint64('chain_id'),
-  caller: db.address('caller'),
-  pool: db.address('pool'),
-  token0: db.address('token0'),
-  token1: db.address('token1'),
-  fee: db.uint24('fee'),
+export const punkAdded = table("punk_added", {
+  blockTimestamp: db.uint256('block_timestamp'),
+  txnHash: db.bytes32('txn_hash'),
+  blockNumber: db.uint256('block_number'),
+  punkIndex: db.uint256('punk_index'),
+  punkBytes: db.bytes('punk_bytes'),
+})
+
+export const punkBought = table("punk_bought", {
+  blockTimestamp: db.uint256('block_timestamp'),
+  txnHash: db.bytes32('txn_hash'),
+  blockNumber: db.uint256('block_number'),
+  punkIndex: db.uint256('punk_index'),
+  value: db.uint256('value'),
+  fromAddress: db.address('from_address'),
+  toAddress: db.address('to_address'),
+})
+
+export const punkClaimed = table("punk_claimed", {
+  blockTimestamp: db.uint256('block_timestamp'),
+  txnHash: db.bytes32('txn_hash'),
+  blockNumber: db.uint256('block_number'),
+  punkIndex: db.uint256('punk_index'),
+  toAddress: db.address('to_address'),
+})
+
+export const punkOffered = table("punk_offered", {
+  blockTimestamp: db.uint256('block_timestamp'),
+  txnHash: db.bytes32('txn_hash'),
+  blockNumber: db.uint256('block_number'),
+  punkIndex: db.uint256('punk_index'),
+  minValue: db.uint256('min_value'),
+  toAddress: db.address('to_address'),
+})
+
+export const punkTransfer = table("punk_transfer", {
+  blockTimestamp: db.uint256('block_timestamp'),
+  txnHash: db.bytes32('txn_hash'),
+  blockNumber: db.uint256('block_number'),
+  punkIndex: db.uint256('punk_index'),
+  fromAddress: db.address('from_address'),
+  toAddress: db.address('to_address'),
+})
+
+export const punkSvgAndAttributes = table("punk_svg_and_attributes", {
+  punkIndex: db.uint256('punk_index'),
+  svg: t.text('svg'),
+  attributes: t.text('attributes'),
 })
