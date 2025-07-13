@@ -17,6 +17,7 @@ contract Triggers is BaseTriggers {
         addTrigger(chainContract(Chains.Ethereum, CRYPTOPUNKS), listener.triggerOnPunkOfferedEvent());
         addTrigger(chainContract(Chains.Ethereum, CRYPTOPUNKS), listener.triggerOnPunkBoughtEvent());
         addTrigger(chainContract(Chains.Ethereum, PUNKS_IMAGES_ONCHAIN), listener.triggerOnAddPunksFunction());
+        addTrigger(chainContract(Chains.Ethereum, PUNKS_IMAGES_ONCHAIN), listener.triggerOnSealContractFunction());
     }
 }
 
@@ -24,11 +25,12 @@ contract Triggers is BaseTriggers {
 /// To trigger on more function calls, specify that this listener should implement that interface and follow the compiler errors.
 contract Listener is 
 CryptoPunks$OnPunkOfferedEvent, 
-CryptoPunks$OnPunkBoughtEvent,
+CryptoPunks$OnPunkBoughtEvent,  
 CryptoPunks$OnPunkTransferEvent,
 CryptoPunks$OnAssignEvent, 
-CryptoPunksOnchain$OnAddPunksFunction
- {
+CryptoPunksOnchain$OnAddPunksFunction, 
+CryptoPunksOnchain$OnSealContractFunction
+{
     address constant CRYPTOPUNKS = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
     address constant PUNKS_IMAGES_ONCHAIN = 0x16F5A35647D6F03D5D3da7b35409D65ba03aF3B2;
     ///Get All Offers
@@ -70,10 +72,20 @@ CryptoPunksOnchain$OnAddPunksFunction
         emit PunkAdded(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.index, inputs._punks);
         
         // Get SVG from the punk data contract
-        IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
-        string memory svg = punkData.punkImageSvg(inputs.index);
-        string memory attributes = punkData.punkAttributes(inputs.index);
-        emit punkSvgAndAttributes(inputs.index, svg, attributes);
+        // IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
+        // string memory svg = punkData.punkImageSvg(inputs.index);
+        // string memory attributes = punkData.punkAttributes(inputs.index);
+        // emit punkSvgAndAttributes(inputs.index, svg, attributes);
+    }
+
+    function onSealContractFunction(FunctionContext memory ctx) external override {
+        for (uint16 i = 0; i < 10000; i++) {
+             // Get SVG from the punk data contract
+            IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
+            string memory svg = punkData.punkImageSvg(i);
+            string memory attributes = punkData.punkAttributes(i);
+            emit punkSvgAndAttributes(i, svg, attributes);
+        }
     }
 
   
