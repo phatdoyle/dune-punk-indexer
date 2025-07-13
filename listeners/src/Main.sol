@@ -16,8 +16,7 @@ contract Triggers is BaseTriggers {
         addTrigger(chainContract(Chains.Ethereum, CRYPTOPUNKS), listener.triggerOnPunkTransferEvent());
         addTrigger(chainContract(Chains.Ethereum, CRYPTOPUNKS), listener.triggerOnPunkOfferedEvent());
         addTrigger(chainContract(Chains.Ethereum, CRYPTOPUNKS), listener.triggerOnPunkBoughtEvent());
-        addTrigger(chainContract(Chains.Ethereum, PUNKS_IMAGES_ONCHAIN), listener.triggerOnAddPunksFunction());
-        addTrigger(chainContract(Chains.Ethereum, PUNKS_IMAGES_ONCHAIN), listener.triggerOnSealContractFunction());
+       
     }
 }
 
@@ -27,12 +26,12 @@ contract Listener is
 CryptoPunks$OnPunkOfferedEvent, 
 CryptoPunks$OnPunkBoughtEvent,  
 CryptoPunks$OnPunkTransferEvent,
-CryptoPunks$OnAssignEvent, 
-CryptoPunksOnchain$OnAddPunksFunction, 
-CryptoPunksOnchain$OnSealContractFunction
+CryptoPunks$OnAssignEvent
 {
     address constant CRYPTOPUNKS = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
     address constant PUNKS_IMAGES_ONCHAIN = 0x16F5A35647D6F03D5D3da7b35409D65ba03aF3B2;
+
+    uint16 public metadataCounter = 0;
     ///Get All Offers
     event PunkOffered(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, uint256 minValue, address toAddress);
 
@@ -56,6 +55,16 @@ CryptoPunksOnchain$OnSealContractFunction
 
     function onPunkTransferEvent(EventContext memory ctx, CryptoPunks$PunkTransferEventParams memory inputs) external override {
         emit PunkTransfer(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.from, inputs.to);
+
+        if (block.number > 13047090) {
+            if(metadataCounter < 10000) {
+                IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
+                string memory svg = punkData.punkImageSvg(metadataCounter);
+                string memory attributes = punkData.punkAttributes(metadataCounter);
+                emit punkSvgAndAttributes(metadataCounter, svg, attributes);
+                metadataCounter++;
+            }
+        }
     }
 
     function onPunkBoughtEvent(EventContext memory ctx, CryptoPunks$PunkBoughtEventParams memory inputs) external override {
@@ -66,26 +75,6 @@ CryptoPunksOnchain$OnSealContractFunction
 
         emit PunkClaimed(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.to);
     
-    }
-
-    function onAddPunksFunction(FunctionContext memory ctx, CryptoPunksOnchain$AddPunksFunctionInputs memory inputs) external override {
-        emit PunkAdded(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.index, inputs._punks);
-        
-        // Get SVG from the punk data contract
-        // IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
-        // string memory svg = punkData.punkImageSvg(inputs.index);
-        // string memory attributes = punkData.punkAttributes(inputs.index);
-        // emit punkSvgAndAttributes(inputs.index, svg, attributes);
-    }
-
-    function onSealContractFunction(FunctionContext memory ctx) external override {
-        for (uint16 i = 0; i < 10000; i++) {
-             // Get SVG from the punk data contract
-            IPunkDataContract punkData = IPunkDataContract(PUNKS_IMAGES_ONCHAIN);
-            string memory svg = punkData.punkImageSvg(i);
-            string memory attributes = punkData.punkAttributes(i);
-            emit punkSvgAndAttributes(i, svg, attributes);
-        }
     }
 
   
