@@ -3,14 +3,6 @@ import { pgEnum, pgTable as table } from "drizzle-orm/pg-core";
 import * as t from "drizzle-orm/pg-core";
 import { db, types } from "@duneanalytics/sim-idx";
 
-export const punkAdded = table("punk_added", {
-  blockTimestamp: db.uint256('block_timestamp'),
-  txnHash: db.bytes32('txn_hash'),
-  blockNumber: db.uint256('block_number'),
-  punkIndex: db.uint256('punk_index'),
-  punkBytes: db.bytes('punk_bytes'),
-})
-
 export const punkBought = table("punk_bought", {
   blockTimestamp: db.uint256('block_timestamp'),
   txnHash: db.bytes32('txn_hash'),
