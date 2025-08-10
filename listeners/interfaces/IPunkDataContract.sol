@@ -5,3 +5,7 @@ interface IPunkDataContract {
     function punkImage(uint16 index) external view returns (bytes memory);
     function punkImageSvg(uint16 index) external view returns (string memory);
 }
+
+interface ICryptoPunksContract {
+    function balanceOf(address owner) external view returns (uint256);
+}

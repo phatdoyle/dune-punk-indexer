@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { types, db, App, middlewares } from "@duneanalytics/sim-idx"; // Import schema to ensure it's registered
 import { getPunkVolume, PunkVolumeData } from "./queries/punk-volume";
+import { getPunkHolders, PunkHolderData } from "./queries/punk-holders";
 
 
 
@@ -29,6 +30,21 @@ app.get("/punk-volume", async (c) => {
     });
   } catch (e) {
     console.error("Punk volume query failed:", e);
+    return Response.json({ error: (e as Error).message }, { status: 500 });
+  }
+});
+
+app.get("/punk-holders", async (c) => {
+  try {
+    const holderData = await getPunkHolders(c);
+    
+    return Response.json({
+      data: holderData,
+      total_records: holderData.length,
+      description: "Punk holders with positive balances ordered by date (most recent first) and balance (highest first)"
+    });
+  } catch (e) {
+    console.error("Punk holders query failed:", e);
     return Response.json({ error: (e as Error).message }, { status: 500 });
   }
 });

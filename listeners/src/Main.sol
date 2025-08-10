@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import "sim-idx-sol/Simidx.sol";
 import "sim-idx-generated/Generated.sol";
-import {IPunkDataContract} from "../interfaces/IPunkDataContract.sol";
+import {IPunkDataContract, ICryptoPunksContract} from "../interfaces/IPunkDataContract.sol";
 
 contract Triggers is BaseTriggers {
 
@@ -35,6 +35,8 @@ CryptoPunks$OnAssignEvent
     ///Get All Offers
     event PunkOffered(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, uint256 minValue, address toAddress);
 
+    event PunkNoLongerForSale (uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex);
+
     ///Get All Claims
     event PunkClaimed(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, address toAddress);
 
@@ -42,9 +44,13 @@ CryptoPunks$OnAssignEvent
     event PunkBought(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, uint256 value, address fromAddress, address toAddress);
 
     ///Get all Punk Transfers
+     /// @custom:index transfer_by_date BTREE (block_timestamp);
     event PunkTransfer(uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 punkIndex, address fromAddress, address toAddress);
     ///Get All Svg and Attributes
     event punkSvgAndAttributes(uint256 punkIndex, string svg, string attributes);
+
+    /// @custom:index punk_owner_by_address BTREE (owner, block_timestamp);
+    event punkBalances(address owner, uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 balance);
 
     ///EVENT HANDLERS
     function onPunkOfferedEvent(EventContext memory ctx, CryptoPunks$PunkOfferedEventParams memory inputs) external override {
@@ -53,6 +59,15 @@ CryptoPunks$OnAssignEvent
 
     function onPunkTransferEvent(EventContext memory ctx, CryptoPunks$PunkTransferEventParams memory inputs) external override {
         emit PunkTransfer(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.from, inputs.to);
+
+        ICryptoPunksContract punkContract = ICryptoPunksContract(CRYPTOPUNKS);
+        uint256 balance = punkContract.balanceOf(inputs.to);
+        emit punkBalances(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, balance);
+
+        punkContract.balanceOf(inputs.from);
+        emit punkBalances(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, balance);
+
+
 
         // if (block.number > 13047090) {
         //     if(metadataCounter < 10000) {
@@ -70,9 +85,7 @@ CryptoPunks$OnAssignEvent
     }
 
     function onAssignEvent(EventContext memory ctx, CryptoPunks$AssignEventParams memory inputs) external override {
-
-        emit PunkClaimed(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.to);
-    
+        emit PunkClaimed(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.to); 
     }
 
   
