@@ -59,13 +59,13 @@ CryptoPunks$OnAssignEvent
 
     function onPunkTransferEvent(EventContext memory ctx, CryptoPunks$PunkTransferEventParams memory inputs) external override {
         emit PunkTransfer(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, inputs.from, inputs.to);
-
+        //event punkBalances(address owner, uint256 block_timestamp, bytes32 txn_hash,  uint256 block_number, uint256 balance);
         ICryptoPunksContract punkContract = ICryptoPunksContract(CRYPTOPUNKS);
-        uint256 balance = punkContract.balanceOf(inputs.to);
-        emit punkBalances(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, balance);
+        uint256 balanceTo= punkContract.balanceOf(inputs.to);
+        emit punkBalances(inputs.to, uint256(block.timestamp), ctx.txn.hash, block.number, balanceTo);
 
-        punkContract.balanceOf(inputs.from);
-        emit punkBalances(uint256(block.timestamp), ctx.txn.hash, block.number, inputs.punkIndex, balance);
+       uint256 balanceFrom = punkContract.balanceOf(inputs.from);
+         emit punkBalances(inputs.from, uint256(block.timestamp), ctx.txn.hash, block.number, balanceFrom);
 
 
 
