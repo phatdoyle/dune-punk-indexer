@@ -28,7 +28,7 @@ export async function getPunkVolume(c: Context, interval: string = 'DAY'): Promi
         PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY value) / POWER(10, 18) AS percentile_25_eth,
         PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY value) / POWER(10, 18) AS percentile_50_eth,
         PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY value) / POWER(10, 18) AS percentile_75_eth
-      FROM "will-late-cK6wtMS1FB".punk_bought
+      FROM punk_bought
       WHERE value > 0
       GROUP BY period
       ORDER BY period DESC
